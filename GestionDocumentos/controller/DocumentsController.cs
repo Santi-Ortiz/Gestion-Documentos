@@ -42,8 +42,8 @@ public class DocumentsController : ControllerBase
         }
     }
 
-    // POST /api/documents/{documentId}/actions
-    [HttpPost("{documentId}/actions")]
+    // POST /api/documents/actions/{documentId}
+    [HttpPost("/actions/{documentId}")]
     public async Task<ActionResult> ProcesarAccionValidacion(Guid documentId, [FromBody] AccionValidacionDto dto)
     {
         try

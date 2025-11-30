@@ -1,17 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using GestionDocumentos.data;
 using GestionDocumentos.service;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Ignorar ciclos de referencia
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        // Opcional: escribir JSON con indentación para mejor lectura
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Registrar servicios
 builder.Services.AddScoped<DocumentoService>();
 builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<InstanciaValidacionService>();

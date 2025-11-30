@@ -5,15 +5,15 @@ namespace GestionDocumentos.dto;
 public class AccionValidacionDto
 {
     [Required]
-    public Guid UserId { get; set; }
+    public Guid ActorUserId { get; set; }
 
     [Required]
-    public int OrdenPaso { get; set; }
-
-    [Required]
-    [RegularExpression("Aprobar|Rechazar", ErrorMessage = "La acción debe ser 'Aprobar' o 'Rechazar'")]
+    [RegularExpression("Aprobar|Rechazar|APROBAR|RECHAZAR", ErrorMessage = "La acción debe ser 'Aprobar' o 'Rechazar'")]
     [MaxLength(10)]
     public string Accion { get; set; } = string.Empty;
+
+    [MaxLength(200)]
+    public string? Razon { get; set; }
 }
 
 public class CrearDocumentoDto

@@ -95,6 +95,22 @@ public class AuditoriasController : ControllerBase
         }
     }
 
+    // GET /api/auditorias/historial/{documentoId}
+    [HttpGet("historial/{documentoId}")]
+    public async Task<ActionResult<List<HistorialAuditoriaDto>>> ObtenerHistorialAuditoriaDocumento(Guid documentoId)
+    {
+        try
+        {
+            var historial = await _auditoriaService.ObtenerHistorialAuditoriaDocumentoAsync(documentoId);
+            return Ok(historial);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener historial de auditoría del documento");
+            return StatusCode(500, new { error = "Error interno del servidor" });
+        }
+    }
+
     // GET /api/auditorias/usuario/{userId}
     [HttpGet("usuario/{userId}")]
     public async Task<ActionResult<List<DocumentoAuditoria>>> ObtenerAuditoriasPorUsuario(Guid userId)
@@ -111,21 +127,6 @@ public class AuditoriasController : ControllerBase
         }
     }
 
-    // GET /api/auditorias/historial/{documentoId}
-    [HttpGet("historial/{documentoId}")]
-    public async Task<ActionResult<List<DocumentoAuditoria>>> ObtenerHistorialDocumento(Guid documentoId)
-    {
-        try
-        {
-            var historial = await _auditoriaService.ObtenerHistorialDocumentoAsync(documentoId);
-            return Ok(historial);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener historial del documento");
-            return StatusCode(500, new { error = "Error interno del servidor" });
-        }
-    }
 
     // PUT /api/auditorias/{id}
     [HttpPut("{id}")]

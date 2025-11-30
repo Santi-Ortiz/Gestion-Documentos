@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using GestionDocumentos.data;
 using GestionDocumentos.model;
+using GestionDocumentos.dto;
 
 namespace GestionDocumentos.service;
 
@@ -110,22 +112,39 @@ public class DocumentoAuditoriaService
             .ToListAsync();
     }
 
-    // Consulta: Auditorías en rango de fechas
-    public async Task<List<DocumentoAuditoria>> ObtenerAuditoriasPorRangoFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+    // SP - Obtener historial de auditoría de un documento
+    public async Task<List<HistorialAuditoriaDto>> ObtenerHistorialAuditoriaDocumentoAsync(Guid documentoId)
     {
-        return await _context.DocumentosAuditoria
-            .Include(a => a.Documento)
-            .Where(a => a.FechaCambio >= fechaInicio && a.FechaCambio <= fechaFin)
-            .OrderByDescending(a => a.FechaCambio)
-            .ToListAsync();
+        var historial = new List<HistorialAuditoriaDto>();
+
+        using (var command = _context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = "EXEC sp_HistorialDocumentoAuditoria @documentoId";
+            command.Parameters.Add(new SqlParameter("@documentoId", documentoId));
+
+            await _context.Database.OpenConnectionAsync();
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    historial.Add(new HistorialAuditoriaDto
+                    {
+                        AuditoriaId = reader.GetGuid(reader.GetOrdinal("auditoriaId")),
+                        EstadoAnterior = reader.GetString(reader.GetOrdinal("estadoAnterior")),
+                        EstadoNuevo = reader.GetString(reader.GetOrdinal("estadoNuevo")),
+                        FechaCambio = reader.GetDateTime(reader.GetOrdinal("fechaCambio")),
+                        UserId = reader.IsDBNull(reader.GetOrdinal("userId")) ? null : reader.GetGuid(reader.GetOrdinal("userId"))
+                    });
+                }
+            }
+
+            await _context.Database.CloseConnectionAsync();
+        }
+
+        _logger.LogInformation("Historial de auditoría obtenido para DocumentoId={DocumentoId}", documentoId);
+
+        return historial;
     }
 
-    // Consulta: Historial completo de cambios de un documento
-    public async Task<List<DocumentoAuditoria>> ObtenerHistorialDocumentoAsync(Guid documentoId)
-    {
-        return await _context.DocumentosAuditoria
-            .Where(a => a.DocumentoId == documentoId)
-            .OrderBy(a => a.FechaCambio)
-            .ToListAsync();
-    }
 }

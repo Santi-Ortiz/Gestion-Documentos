@@ -146,19 +146,4 @@ public class EmpresasController : ControllerBase
         }
     }
 
-    // GET /api/empresas/empleados/{minimo}
-    [HttpGet("empleados/{minimo}")]
-    public async Task<ActionResult<List<Empresa>>> ObtenerEmpresasPorEmpleados(int minimo)
-    {
-        try
-        {
-            var empresas = await _empresaService.ObtenerEmpresasPorNumeroEmpleadosAsync(minimo);
-            return Ok(empresas);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener empresas por empleados");
-            return StatusCode(500, new { error = "Error interno del servidor" });
-        }
-    }
 }

@@ -87,12 +87,4 @@ public class EmpresaService
         return true;
     }
 
-    // Consulta: Empresas con más de X empleados
-    public async Task<List<Empresa>> ObtenerEmpresasPorNumeroEmpleadosAsync(int minimoEmpleados)
-    {
-        return await _context.Empresas
-            .Where(e => e.NumeroEmpleados >= minimoEmpleados)
-            .OrderByDescending(e => e.NumeroEmpleados)
-            .ToListAsync();
-    }
 }

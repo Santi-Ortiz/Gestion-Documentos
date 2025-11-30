@@ -54,14 +54,14 @@ public class DocumentoService
             // Llamar al Stored Procedure
             var parametros = new[]
             {
-                new SqlParameter("@DocumentoId", documentId),
-                new SqlParameter("@UserId", dto.UserId),
-                new SqlParameter("@OrdenPaso", dto.OrdenPaso),
-                new SqlParameter("@Accion", dto.Accion)
+                new SqlParameter("@documentoId", documentId),
+                new SqlParameter("@actorUserId", dto.ActorUserId),
+                new SqlParameter("@accion", dto.Accion),
+                new SqlParameter("@razon", (object?)dto.Razon ?? DBNull.Value)
             };
 
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_ProcesarAccionValidacion @DocumentoId, @UserId, @OrdenPaso, @Accion",
+                "EXEC sp_ProcesarAccionValidacion @documentoId, @actorUserId, @accion, @razon",
                 parametros
             );
 
@@ -69,8 +69,8 @@ public class DocumentoService
             await _context.Entry(documento).ReloadAsync();
 
             _logger.LogInformation(
-                "Acción de validación procesada: DocumentoId={DocumentoId}, UserId={UserId}, Accion={Accion}",
-                documentId, dto.UserId, dto.Accion
+                "Acción de validación procesada: DocumentoId={DocumentoId}, ActorUserId={ActorUserId}, Accion={Accion}",
+                documentId, dto.ActorUserId, dto.Accion
             );
 
             return documento;

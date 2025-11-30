@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using GestionDocumentos.data;
 using GestionDocumentos.model;
+using GestionDocumentos.dto;
 
 namespace GestionDocumentos.service;
 
@@ -97,23 +99,39 @@ public class InstanciaValidacionService
         return true;
     }
 
-    // Consulta: Validaciones por acción
-    public async Task<List<InstanciaValidacion>> ObtenerValidacionesPorAccionAsync(string accion)
+    // SP - Obtener historial de validaciones de un documento
+    public async Task<List<HistorialValidacionDto>> ObtenerHistorialValidacionesDocumentoAsync(Guid documentoId)
     {
-        return await _context.InstanciasValidacion
-            .Include(v => v.Documento)
-            .Where(v => v.Accion == accion)
-            .OrderByDescending(v => v.FechaRevision)
-            .ToListAsync();
+        var historial = new List<HistorialValidacionDto>();
+
+        using (var command = _context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = "EXEC sp_HistorialValidacionesDocumentos @documentoId";
+            command.Parameters.Add(new SqlParameter("@documentoId", documentoId));
+
+            await _context.Database.OpenConnectionAsync();
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    historial.Add(new HistorialValidacionDto
+                    {
+                        ValidacionId = reader.GetGuid(reader.GetOrdinal("validacionId")),
+                        UserId = reader.GetGuid(reader.GetOrdinal("userId")),
+                        OrdenPaso = reader.GetInt32(reader.GetOrdinal("ordenPaso")),
+                        Accion = reader.GetString(reader.GetOrdinal("accion")),
+                        FechaRevision = reader.GetDateTime(reader.GetOrdinal("fechaRevision"))
+                    });
+                }
+            }
+
+            await _context.Database.CloseConnectionAsync();
+        }
+
+        _logger.LogInformation("Historial de validaciones obtenido para DocumentoId={DocumentoId}", documentoId);
+
+        return historial;
     }
 
-    // Consulta: Validaciones en rango de fechas
-    public async Task<List<InstanciaValidacion>> ObtenerValidacionesPorRangoFechasAsync(DateTime fechaInicio, DateTime fechaFin)
-    {
-        return await _context.InstanciasValidacion
-            .Include(v => v.Documento)
-            .Where(v => v.FechaRevision >= fechaInicio && v.FechaRevision <= fechaFin)
-            .OrderByDescending(v => v.FechaRevision)
-            .ToListAsync();
-    }
 }

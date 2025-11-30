@@ -95,6 +95,22 @@ public class ValidacionesController : ControllerBase
         }
     }
 
+    // GET /api/validaciones/historial/{documentoId}
+    [HttpGet("historial/{documentoId}")]
+    public async Task<ActionResult<List<HistorialValidacionDto>>> ObtenerHistorialValidacionesDocumento(Guid documentoId)
+    {
+        try
+        {
+            var historial = await _validacionService.ObtenerHistorialValidacionesDocumentoAsync(documentoId);
+            return Ok(historial);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener historial de validaciones del documento");
+            return StatusCode(500, new { error = "Error interno del servidor" });
+        }
+    }
+
     // GET /api/validaciones/usuario/{userId}
     [HttpGet("usuario/{userId}")]
     public async Task<ActionResult<List<InstanciaValidacion>>> ObtenerValidacionesPorUsuario(Guid userId)
@@ -107,22 +123,6 @@ public class ValidacionesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener validaciones por usuario");
-            return StatusCode(500, new { error = "Error interno del servidor" });
-        }
-    }
-
-    // GET /api/validaciones/accion/{accion}
-    [HttpGet("accion/{accion}")]
-    public async Task<ActionResult<List<InstanciaValidacion>>> ObtenerValidacionesPorAccion(string accion)
-    {
-        try
-        {
-            var validaciones = await _validacionService.ObtenerValidacionesPorAccionAsync(accion);
-            return Ok(validaciones);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener validaciones por acción");
             return StatusCode(500, new { error = "Error interno del servidor" });
         }
     }
