@@ -39,19 +39,19 @@ El sistema utiliza cuatro tablas principales:
 
 Ejecutar los scripts SQL, ubicados en el repositorio, en el siguiente orden:
 
--- DDL_Script
--- Script_Stored_Procedures
--- Script_Triggers
+- DDL_Script
+- Script_Stored_Procedures
+- Script_Triggers
 
-#### 1.Stored Procedures
+#### 1.1. Stored Procedures
 
-**sp_ProcesarAccionValidacion**: Procesa aprobaciones y rechazos de documentos
+- **sp_ProcesarAccionValidacion**: Procesa aprobaciones y rechazos de documentos
 
-**sp_sp_ListarDocumentosPendientes**: Muestra la lista de documentos que no se encuentran aprobados
+- **sp_sp_ListarDocumentosPendientes**: Muestra la lista de documentos que no se encuentran aprobados
 
-**sp_HistorialValidacionesDocumentos**: Consulta el historial de validaciones
+- **sp_HistorialValidacionesDocumentos**: Consulta el historial de validaciones
 
-**sp_HistorialDocumentoAuditoria**: Consulta el historial de auditoría
+- **sp_HistorialDocumentoAuditoria**: Consulta el historial de auditoría
 
 
 ### 2. Configurar la cadena de conexión
